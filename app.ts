@@ -7,8 +7,6 @@ const app = express();
 app.use(express.json());
 app.use(express.json());
 
-const idSchema = z.number().int().nonnegative().finite();
-
 app.get('/', async (_req: Request, res: Response) => {
 	res.json({ message: 'Hello from Express Prisma Boilerplate!' });
 });
@@ -25,7 +23,18 @@ app.post('/quiz', async (req: Request, res: Response) => {
 app.get('/quiz', async (_req: Request, res: Response) => {
 	try {
 		const quiz = await prisma.quiz.findMany({
-			include: { questions: true },
+			include: {
+				questions: {
+					include: {
+						answers: {
+							select: {
+								id: true,
+								description: true,
+							},
+						},
+					},
+				},
+			},
 		});
 		res.json({ message: 'success', data: quiz });
 	} catch (error: any) {
@@ -35,9 +44,8 @@ app.get('/quiz', async (_req: Request, res: Response) => {
 
 app.get('/quiz/:id', async (req: Request, res: Response) => {
 	try {
-		const id = idSchema.parse(req.params.id);
 		const quiz = await prisma.quiz.findUnique({
-			where: { id },
+			where: { id: Number(req.params.id) },
 			include: { questions: true },
 		});
 		if (!quiz) res.json({ message: 'not found!', data: quiz });
@@ -49,31 +57,29 @@ app.get('/quiz/:id', async (req: Request, res: Response) => {
 
 const quizAttemptSchema = z.array(
 	z.strictObject({
-		questionId: idSchema,
-		answerId: z.number().int().nonnegative().finite(),
+		questionId: z.number().int().nonnegative().finite(),
+		answerId: z.number().int().nonnegative().finite().nullable(),
 	})
 );
 
 app.post('/quiz/:id', async (req: Request, res: Response) => {
 	try {
-		const id = idSchema.parse(req.params.id);
-		const questions = quizAttemptSchema.parse(req.body);
-		const quiz = await prisma.quiz.findUnique({
-			where: { id },
+		const parsed = quizAttemptSchema.safeParse(req.body);
+		if (!parsed.success) throw new Error('invalid input!');
+		const { data } = parsed;
+		const questions = await prisma.question.findMany({
+			where: { id: Number(req.params.id) },
 			include: {
-				questions: {
-					include: {
-						answers: true,
-					},
-				},
+				answers: true,
 			},
 		});
-		if (!quiz) throw new Error('not found!');
+		if (!questions) throw new Error('not found!');
 		let score = 0;
-		for (const { questionId, answerId } of questions) {
-			const correct = quiz.questions
-				.find((row) => row.id === questionId)
-				?.answers.find((row) => row.correct)?.id;
+		for (const { questionId, answerId } of data) {
+			const question = questions.find((row) => row.id === questionId);
+			if (question?.mandatory && !answerId)
+				throw new Error('all mandatory questions not answered!');
+			const correct = question?.answers.find((row) => row.correct)?.id;
 			if (correct === answerId) score++;
 		}
 		res.json({ message: 'success', data: score });

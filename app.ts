@@ -14,9 +14,9 @@ app.get('/', async (_req: Request, res: Response) => {
 app.post('/quiz', async (req: Request, res: Response) => {
 	try {
 		const user = await prisma.quiz.create({ data: req.body });
-		res.json({ message: 'success', data: user });
+		res.status(201).json({ message: 'success', data: user });
 	} catch (error: any) {
-		res.json({ message: error.message, data: null });
+		res.status(500).json({ message: error.message, data: null });
 	}
 });
 
@@ -36,9 +36,9 @@ app.get('/quiz', async (_req: Request, res: Response) => {
 				},
 			},
 		});
-		res.json({ message: 'success', data: quiz });
+		res.status(200).json({ message: 'success', data: quiz });
 	} catch (error: any) {
-		res.json({ message: error.message, data: null });
+		res.status(500).json({ message: error.message, data: null });
 	}
 });
 
@@ -48,10 +48,11 @@ app.get('/quiz/:id', async (req: Request, res: Response) => {
 			where: { id: Number(req.params.id) },
 			include: { questions: true },
 		});
-		if (!quiz) res.json({ message: 'not found!', data: quiz });
-		res.json({ message: 'success', data: quiz });
+		if (!quiz)
+			return res.status(404).json({ message: 'not found!', data: null });
+		res.status(200).json({ message: 'success', data: quiz });
 	} catch (error: any) {
-		res.json({ message: error.message, data: null });
+		res.status(500).json({ message: error.message, data: null });
 	}
 });
 
@@ -65,7 +66,10 @@ const quizAttemptSchema = z.array(
 app.post('/quiz/:id', async (req: Request, res: Response) => {
 	try {
 		const parsed = quizAttemptSchema.safeParse(req.body);
-		if (!parsed.success) throw new Error('invalid input!');
+		if (!parsed.success)
+			return res
+				.status(400)
+				.json({ message: 'invalidInput', data: null });
 		const { data } = parsed;
 		const questions = await prisma.question.findMany({
 			where: { id: Number(req.params.id) },
@@ -73,7 +77,7 @@ app.post('/quiz/:id', async (req: Request, res: Response) => {
 				answers: true,
 			},
 		});
-		if (!questions) throw new Error('not found!');
+		if (!questions) return res.status(404).json('not found!');
 		let score = 0;
 		for (const { questionId, answerId } of data) {
 			const question = questions.find((row) => row.id === questionId);
@@ -82,9 +86,9 @@ app.post('/quiz/:id', async (req: Request, res: Response) => {
 			const correct = question?.answers.find((row) => row.correct)?.id;
 			if (correct === answerId) score++;
 		}
-		res.json({ message: 'success', data: score });
+		res.status(200).json({ message: 'success', data: score });
 	} catch (error: any) {
-		res.json({ message: error.message, data: null });
+		res.status(500).json({ message: error.message, data: null });
 	}
 });
 

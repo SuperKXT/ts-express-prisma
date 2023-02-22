@@ -77,14 +77,16 @@ app.post('/quiz/:id', async (req: Request, res: Response) => {
 				answers: true,
 			},
 		});
-		if (!questions) return res.status(404).json('not found!');
+		if (!questions.length)
+			return res.status(404).json({ message: 'not found!', data: null });
 		let score = 0;
 		for (const { questionId, answerId } of data) {
 			const question = questions.find((row) => row.id === questionId);
 			if (question?.mandatory && !answerId)
-				throw new Error('all mandatory questions not answered!');
-			const correct = question?.answers.find((row) => row.correct)?.id;
-			if (correct === answerId) score++;
+				return res.status(400).json({
+					message: 'not found!',
+					data: 'all mandatory questions not answered!',
+				});
 		}
 		res.status(200).json({ message: 'success', data: score });
 	} catch (error: any) {

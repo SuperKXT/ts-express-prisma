@@ -3,15 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model quiz {
   id          Int        @id @default(autoincrement())
-  title       String     @db.VarChar(99)
-  description String     @db.VarChar(500)
+  title       String
+  description String
   questions   question[]
 }
 
@@ -19,8 +18,15 @@ model question {
   id            Int      @id @default(autoincrement())
   description   String
   mandatory     Boolean
-  correctAnswer Int
-  answers       String[] @db.VarChar(500)
+  answers       answer[]
   quizId        Int
   quiz          quiz     @relation(fields: [quizId], references: [id])
+}
+
+model answer {
+  id          Int      @id @default(autoincrement())
+  description String
+  correct     Boolean
+  questionId  Int
+  question    question @relation(fields: [questionId], references: [id])
 }

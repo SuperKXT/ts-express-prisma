@@ -24,14 +24,11 @@ app.post('/quiz', async (req: Request, res: Response) => {
 
 app.get('/quiz', async (_req: Request, res: Response) => {
 	try {
-		console.log('reached');
 		const quiz = await prisma.quiz.findMany({
 			include: { questions: true },
 		});
-		console.log('reached');
 		res.json({ message: 'success', data: quiz });
 	} catch (error: any) {
-		console.log('error');
 		res.json({ message: error.message, data: null });
 	}
 });
@@ -53,7 +50,7 @@ app.get('/quiz/:id', async (req: Request, res: Response) => {
 const quizAttemptSchema = z.array(
 	z.strictObject({
 		questionId: idSchema,
-		answer: z.number().int().nonnegative().finite(),
+		answerId: z.number().int().nonnegative().finite(),
 	})
 );
 
@@ -63,16 +60,21 @@ app.post('/quiz/:id', async (req: Request, res: Response) => {
 		const questions = quizAttemptSchema.parse(req.body);
 		const quiz = await prisma.quiz.findUnique({
 			where: { id },
-			include: { questions: true },
+			include: {
+				questions: {
+					include: {
+						answers: true,
+					},
+				},
+			},
 		});
 		if (!quiz) throw new Error('not found!');
 		let score = 0;
-		for (const { questionId, answer } of questions) {
-			const correct = quiz.questions.find(
-				(row) => row.id === questionId
-			)?.correctAnswer;
-			if (!correct) throw new Error('unknown question!');
-			if (correct === answer) score++;
+		for (const { questionId, answerId } of questions) {
+			const correct = quiz.questions
+				.find((row) => row.id === questionId)
+				?.answers.find((row) => row.correct)?.id;
+			if (correct === answerId) score++;
 		}
 		res.json({ message: 'success', data: score });
 	} catch (error: any) {

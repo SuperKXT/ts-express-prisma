@@ -180,6 +180,13 @@ app.post('/quiz/:id', async (req: Request, res: Response) => {
 	}
 });
 
-app.listen(4000, () => {
-	console.log('Express server is running on port 4000');
-});
+const port = process.env.PORT || 4000;
+app.listen(
+	{
+		port,
+		host: '0.0.0.0',
+	},
+	() => {
+		console.log(`Express server is running on port ${port}`);
+	}
+);

@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"scripts": {
 		"start": "node ./dist/app.js",
-		"dev": "nodemon ./app.ts",
+		"dev": "nodemon ./src/app.ts",
 		"build": "tsc -p .",
 		"prisma:format": "prisma format"
 	},

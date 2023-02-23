@@ -6,8 +6,7 @@
 	"scripts": {
 		"start": "node ./dist/app.js",
 		"dev": "nodemon ./src/app.ts",
-		"build": "tsc -p .",
-		"prisma:format": "prisma format"
+		"build": "npx prisma migrate deploy && tsc -p ."
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.17",

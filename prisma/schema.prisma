@@ -3,21 +3,21 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = "file:./dev.db"
 }
 
 model quiz {
   id          Int        @id @default(autoincrement())
-  title       String
-  description String
+  title       String     @db.VarChar(100)
+  description String     @db.VarChar(500)
   questions   question[]
 }
 
 model question {
   id            Int      @id @default(autoincrement())
-  description   String
-  mandatory     Boolean? @default(false)
+  description   String	 @db.VarChar(500)
+  mandatory     Boolean @default(false)
   answers       answer[]
   quizId        Int
   quiz          quiz     @relation(fields: [quizId], references: [id])
@@ -25,8 +25,8 @@ model question {
 
 model answer {
   id          Int      @id @default(autoincrement())
-  description String
-  correct     Boolean?  @default(false)
+  description String   @db.VarChar(500)
+  correct     Boolean  @default(false)
   questionId  Int
   question    question @relation(fields: [questionId], references: [id])
 }

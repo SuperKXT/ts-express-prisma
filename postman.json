@@ -1,0 +1,122 @@
+{
+	"info": {
+		"_postman_id": "50c1237c-83f5-4d8f-a752-bb0f0d9cb3e1",
+		"name": "ts-express-prisma",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1475978"
+	},
+	"item": [
+		{
+			"name": "getAll",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://ts-express-prisma.herokuapp.com/quiz",
+					"protocol": "https",
+					"host": [
+						"ts-express-prisma",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"quiz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOne",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://ts-express-prisma.herokuapp.com/quiz/:id",
+					"protocol": "https",
+					"host": [
+						"ts-express-prisma",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"quiz",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "4"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"test\",\n    \"description\": \"this is a test description\",\n    \"questions\": [\n        {\n            \"description\": \"this is the first question\",\n            \"mandatory\": true,\n            \"answers\": [\n                {\n                    \"description\": \"answer A\",\n                    \"correct\": true\n                },\n                {\n                    \"description\": \"answer B\"\n                },\n                {\n                    \"description\": \"answer C\"\n                }\n            ]\n        },\n        {\n            \"description\": \"this is the second question\",\n            \"answers\": [\n                {\n                    \"description\": \"answer A\",\n                    \"correct\": true\n                },\n                {\n                    \"description\": \"answer B\"\n                },\n                {\n                    \"description\": \"answer C\"\n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://ts-express-prisma.herokuapp.com/quiz",
+					"protocol": "https",
+					"host": [
+						"ts-express-prisma",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"quiz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "takeQuiz",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"questionId\": 4,\n        \"answerId\": 4\n    },\n    {\n        \"questionId\": 14,\n        \"answerId\": 54\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://ts-express-prisma.herokuapp.com/quiz/:id",
+					"protocol": "https",
+					"host": [
+						"ts-express-prisma",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"quiz",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "4"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -5,7 +5,6 @@ import { z } from 'zod';
 const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
-app.use(express.json());
 
 const errorCodes = {
 	BAD_INPUT: 1,
